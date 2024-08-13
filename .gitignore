@@ -7,7 +7,9 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+.idea
 .Python
+/data/muti-modal-data
 build/
 develop-eggs/
 dist/
@@ -54,9 +56,11 @@ cover/
 # Translations
 *.mo
 *.pot
+*.txt
 
 # Django stuff:
 *.log
+*.npy
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -106,10 +110,8 @@ ipython_config.py
 #pdm.lock
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+#   https://pdm.fming.dev/#use-with-ide
 .pdm.toml
-.pdm-python
-.pdm-build/
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
