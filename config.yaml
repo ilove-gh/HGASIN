@@ -1,0 +1,9 @@
+heat:
+  t: 5.0
+  k:
+  eps: 0.0001
+
+ppr:
+  alpha: 0.08
+  k: 128
+  eps:
