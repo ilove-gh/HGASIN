@@ -58,7 +58,7 @@ class HGDGC(nn.Module):
         R_adj, R_features, L_adj, L_features, ucn_features, ucn_adj, cross_ucn_adj, no_cross_ucn_adj, ucn_row_set_list = self.divide_brain_network(
             adj,
             features)
-        # 使用热核增强邻接矩阵
+        # The diffusion opt is used to enhance the adjacency matrix
         if self.is_enhanced:
             R_adj = self.diffusion_enhancement(R_adj)
             L_adj = self.diffusion_enhancement(L_adj)
@@ -69,7 +69,6 @@ class HGDGC(nn.Module):
         L_features = torch.from_numpy(L_features).to(self.device)
         ucn_features = torch.from_numpy(ucn_features).to(self.device)
 
-        # ucn_adj = torch.from_numpy(ucn_adj).to(self.device)
         cross_ucn_adj = torch.from_numpy(cross_ucn_adj).to(self.device)
         no_cross_ucn_adj = torch.from_numpy(no_cross_ucn_adj).to(self.device)
 
@@ -88,7 +87,6 @@ class HGDGC(nn.Module):
             emb = torch.stack([X_LR_selected_rows, X_U_selected_rows], dim=1)
             emb, att = self.attention(emb)
             L_U_R[idx, rows_to_select, :] = emb
-        # X_contact = torch.cat((X_R,X_L,X_U),dim=1)
         hg = L_U_R.sum(dim=1, dtype=torch.float)
         return self.classify(hg)
 
@@ -124,18 +122,16 @@ class HGDGC(nn.Module):
 
     def compute_ucn_network_neighbor(self, matrix):
         """
-        只保留交叉节点以及交叉节点相邻的节点
+        Only the crossing nodes and the nodes adjacent to the crossing nodes are kept
         :param matrix:
         :return:
         """
         ucn_row_set = set()
-        # Traverse the upper triangular part of the matrix
         for rol in range(matrix.shape[0]):
             for col in range(matrix.shape[1]):
                 if matrix[rol, col] != 0 and (not self.is_parity_same(rol, col)):
                     ucn_row_set.add(rol)
         lst = range(matrix.shape[0])
-        # 使用列表推导来过滤掉 list1 中存在于 list2 的元素
         result = [item for item in lst if item not in list(ucn_row_set)]
         matrix[list(result), :] = 0
         matrix[:, list(result)] = 0
@@ -156,7 +152,7 @@ class HGDGC(nn.Module):
 
 
     def is_parity_same(self, num1, num2):
-        '''判断奇偶性是否相同'''
+        '''Determine whether the parity is the same'''
         if num1 % 2 == num2 % 2:
             return True
         else:
@@ -164,7 +160,7 @@ class HGDGC(nn.Module):
 
     def mask_matrix(self, matrix, mask_row_list: list):
         """
-        掩码矩阵，保留矩阵mask_row_list中的行，其他行置为0
+        Mask matrix.Keep the rows in mask_row_list and set all other rows to 0
         :param matrix:
         :param mask_row_list:
         :return:
@@ -191,7 +187,6 @@ class Attention(nn.Module):
 
 
 class GCN(nn.Module):
-    # 版本3，可设置多层卷积。
     def __init__(self, nfeat, nlayers, nhidden, nclass, dropout):
         super(GCN, self).__init__()
         self.gc1 = GraphConvolution(nfeat, nhidden)
@@ -316,7 +311,7 @@ class GraphConvolution2(nn.Module):
     def forward(self, input, adj, h0, lamda, alpha, l):
         theta = math.log(lamda / l + 1)
         hi = torch.matmul(adj, input)
-        # is variant的计算，进行了简化，可以理解为加速计算，与论文公式略有不同。
+        # The calculation of "is variant", which is simplified and can be understood as accelerated calculation, is slightly different from the formulation of the paper
         if self.variant:
             support = torch.cat([hi, h0], 1)
             r = (1 - alpha) * hi + alpha * h0

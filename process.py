@@ -43,7 +43,6 @@ def load_dataset(dataset: str, balence_weights: bool = False, normalized=None, s
     if is_has_nan(labels) or is_has_nan(features) or is_has_nan(adj):
         raise ValueError("Encountered NaN value form labels or features or adj.")
 
-    # 转化为对称矩阵
     adj = to_sys_matrix(adj)
     if balence_weights:
         adj = balance_weights_to_ones(adj)
@@ -66,7 +65,7 @@ def cross_validation(label, k_fold):
 
 
 def is_has_nan(matrix: np.ndarray) -> bool:
-    # 判断矩阵中是否存在nan值
+    # Check if there are nan values in the matrix
     if np.isnan(matrix).any():
         return True
     else:
@@ -75,7 +74,7 @@ def is_has_nan(matrix: np.ndarray) -> bool:
 
 def balance_weights_to_ones(matrix: np.array) -> np.ndarray:
     """
-    设置所有非0元素为1，彻底转为无权图
+    Set all non-0 elements to 1 to completely convert to an unweighted graph
     :param matrix:
     :return:
     """
@@ -84,14 +83,14 @@ def balance_weights_to_ones(matrix: np.array) -> np.ndarray:
 
 
 def to_sys_matrix(adj: np.ndarray) -> np.ndarray:
-    # 转化为对阵矩阵
+    # Into a symmetric matrix
     adj = adj + adj.transpose(0, 2, 1) * (adj.transpose(0, 2, 1) > adj) - adj * (adj.transpose(0, 2, 1) > adj)
     return adj
 
 
 def sys_normalized_adjacency(adj: np.ndarray, is_self_edge: bool = True) -> np.ndarray:
     """
-    对称归一化，D^{-1/2} Adj  D^{-1/2}
+    symmetric convention normalization，D^{-1/2} Adj  D^{-1/2}
     :param adj:
     :return:
     """

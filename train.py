@@ -56,7 +56,6 @@ print('The list of model initialization parameters is {}'.format(args.__dict__))
 checkpt_file = './pretrained/' + uuid.uuid4().hex + '.pt'
 
 set_env(seed=args.seed)
-# 判定是否有可用的GPU设备
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
@@ -67,13 +66,13 @@ else:
 path = os.getcwd() + '/' + args.dataset
 adj, features, labels = load_dataset(dataset=path, balence_weights=False, normalized=None, symbol=args.name)
 
-# 随机打乱数据顺序
+# Shuffle the data randomly
 shuffle_idx = np.random.permutation(len(labels))
 labels = labels[shuffle_idx]
 adj = adj[shuffle_idx]
 features = features[shuffle_idx]
 
-# 交叉验证，获取所有折的训练接、测试集的标签
+# For cross-validation, get the labels of the training and test sets for all folds
 train_index_list, test_index_list = cross_validation(labels, k_fold=args.kfold)
 
 
@@ -95,15 +94,14 @@ for fold_index in range(args.kfold):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     criterion = nn.CrossEntropyLoss()
 
-    # 训练集索引
+    # Training set index
     fold_train_index = train_index_list[fold_index]
-    # 验证集索引
+    # Validation set index
     fold_test_index = test_index_list[fold_index]
 
-    # 加载为Dataset对象
     train_dataset = CustomDataset(adj[fold_train_index], features[fold_train_index], labels[fold_train_index])
     test_dataset = CustomDataset(adj[fold_test_index], features[fold_test_index], labels[fold_test_index])
-    # 划分batch size
+
     train_dataset = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     test_dataset = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
 
